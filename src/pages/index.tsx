@@ -30,11 +30,9 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
-  const { results } = postsPagination;
-
   return (
     <main className={styles.container}>
-      {results.map(post => {
+      {postsPagination.results.map(post => {
         return (
           <Link href={`/${post.uid}`} key={post.uid}>
             <a href="" className={styles.post}>
@@ -55,7 +53,7 @@ export default function Home({ postsPagination }: HomeProps) {
         )
       })}
 
-
+      <span className={styles.loadPosts}>Carregar mais posts</span>
     </main>
   )
 }
@@ -66,31 +64,38 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.predicates.at('document.type', 'posts')],
     {
       fetch: ['post.title', 'post.content'],
-      pageSize: 2,
+      pageSize: 1,
     }
   );
 
-  const posts = postsResponse.results.map(post => {
+  const next_page = postsResponse.total_pages;
+  console.log(next_page)
+
+  const results = postsResponse.results.map(post => {
     return {
       uid: post.uid,
       first_publication_date: format(
         new Date(post.first_publication_date),
-        "",
+        "dd/MM/yyyy",
         {
           locale: ptBR,
         }
       ),
       data: {
-        title: RichText.asText(post.data.title),
-        subtitle: RichText.asText(post.data.subtitle),
-        author: RichText.asText(post.data.author),
+        title: post.data.title,
+        subtitle: post.data.subtitle,
+        author: post.data.author,
       }
     }
   })
 
+
   return {
     props: {
-      posts
+      postsPagination: {
+        results: results
+      }
     }
+
   }
 };
