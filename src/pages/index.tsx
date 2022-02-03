@@ -8,7 +8,7 @@ import Link from 'next/link'
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
-import { RichText } from 'prismic-dom';
+import { useState } from 'react';
 
 interface Post {
   uid?: string;
@@ -30,9 +30,40 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps) {
+  const [posts, setPosts] = useState<Post[]>(postsPagination.results);
+  const [nextPage, setNextPage] = useState(postsPagination.next_page);
+
+  async function handleGetNextPagePosts() {
+
+    const response = await fetch(nextPage).then((response) => response.json());
+    //pega as informações da próxima página
+
+    const newPosts = response.results.map((post) => { //pega apenas os dados do post
+      return {
+        uid: post.uid,
+        first_publication_date: format(
+          new Date(post.first_publication_date),
+          "dd/MM/yyyy",
+          {
+            locale: ptBR,
+          }
+        ),
+        data: {
+          title: post.data.title,
+          subtitle: post.data.subtitle,
+          author: post.data.author,
+        }
+      }
+    });
+
+    setNextPage(response.next_page); //salva a next_page
+    setPosts([...posts, ...newPosts])
+    //atualiza o estado com os posts antigos + os da nova página respeitando a imutabilidade
+  }
+
   return (
     <main className={styles.container}>
-      {postsPagination.results.map(post => {
+      {posts.map(post => {
         return (
           <Link href={`/${post.uid}`} key={post.uid}>
             <a href="" className={styles.post}>
@@ -53,7 +84,7 @@ export default function Home({ postsPagination }: HomeProps) {
         )
       })}
 
-      <span className={styles.loadPosts}>Carregar mais posts</span>
+      {nextPage != null ? (<span className={styles.loadPosts} onClick={handleGetNextPagePosts}>Carregar mais posts</span>) : ""}
     </main>
   )
 }
@@ -68,9 +99,7 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   );
 
-  const next_page = postsResponse.total_pages;
-  console.log(next_page)
-
+  const next_page = postsResponse.next_page;
   const results = postsResponse.results.map(post => {
     return {
       uid: post.uid,
@@ -93,7 +122,8 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       postsPagination: {
-        results: results
+        results: results,
+        next_page: next_page
       }
     }
 
