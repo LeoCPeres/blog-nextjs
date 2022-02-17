@@ -1,10 +1,10 @@
 import { GetStaticProps } from 'next';
-import { FiCalendar, FiUser } from 'react-icons/fi'
+import { FiCalendar, FiUser } from 'react-icons/fi';
 import { getPrismicClient } from '../services/prismic';
-import Prismic from '@prismicio/client'
-import { format } from 'date-fns'
+import Prismic from '@prismicio/client';
+import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
-import Link from 'next/link'
+import Link from 'next/link';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
@@ -34,16 +34,16 @@ export default function Home({ postsPagination }: HomeProps) {
   const [nextPage, setNextPage] = useState(postsPagination.next_page);
 
   async function handleGetNextPagePosts() {
-
-    const response = await fetch(nextPage).then((response) => response.json());
+    const response = await fetch(nextPage).then(response => response.json());
     //pega as informações da próxima página
 
-    const newPosts = response.results.map((post) => { //pega apenas os dados do post
+    const newPosts = response.results.map(post => {
+      //pega apenas os dados do post
       return {
         uid: post.uid,
         first_publication_date: format(
           new Date(post.first_publication_date),
-          "dd/MM/yyyy",
+          'dd/MM/yyyy',
           {
             locale: ptBR,
           }
@@ -52,12 +52,12 @@ export default function Home({ postsPagination }: HomeProps) {
           title: post.data.title,
           subtitle: post.data.subtitle,
           author: post.data.author,
-        }
-      }
+        },
+      };
     });
 
     setNextPage(response.next_page); //salva a next_page
-    setPosts([...posts, ...newPosts])
+    setPosts([...posts, ...newPosts]);
     //atualiza o estado com os posts antigos + os da nova página respeitando a imutabilidade
   }
 
@@ -81,12 +81,18 @@ export default function Home({ postsPagination }: HomeProps) {
               </div>
             </a>
           </Link>
-        )
+        );
       })}
 
-      {nextPage != null ? (<span className={styles.loadPosts} onClick={handleGetNextPagePosts}>Carregar mais posts</span>) : ""}
+      {nextPage != null ? (
+        <span className={styles.loadPosts} onClick={handleGetNextPagePosts}>
+          Carregar mais posts
+        </span>
+      ) : (
+        ''
+      )}
     </main>
-  )
+  );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
@@ -95,7 +101,7 @@ export const getStaticProps: GetStaticProps = async () => {
     [Prismic.predicates.at('document.type', 'posts')],
     {
       fetch: ['post.title', 'post.content'],
-      pageSize: 1,
+      pageSize: 10,
     }
   );
 
@@ -105,7 +111,7 @@ export const getStaticProps: GetStaticProps = async () => {
       uid: post.uid,
       first_publication_date: format(
         new Date(post.first_publication_date),
-        "dd/MM/yyyy",
+        'dd/MM/yyyy',
         {
           locale: ptBR,
         }
@@ -114,18 +120,16 @@ export const getStaticProps: GetStaticProps = async () => {
         title: post.data.title,
         subtitle: post.data.subtitle,
         author: post.data.author,
-      }
-    }
-  })
-
+      },
+    };
+  });
 
   return {
     props: {
       postsPagination: {
         results: results,
-        next_page: next_page
-      }
-    }
-
-  }
+        next_page: next_page,
+      },
+    },
+  };
 };
