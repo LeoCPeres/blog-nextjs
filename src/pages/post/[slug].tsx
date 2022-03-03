@@ -1,20 +1,17 @@
-import { GetStaticPaths, GetStaticProps } from 'next';
-
 import { getPrismicClient } from '../../services/prismic';
-import Prismic from '@prismicio/client';
-import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
-
-import commonStyles from '../../styles/common.module.scss';
-import styles from './post.module.scss';
 import { RichText } from 'prismic-dom';
 import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
-
-import hash from 'object-hash';
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { useRouter } from 'next/router';
+import Comment from '../../components/Comment/index';
+
+import Prismic from '@prismicio/client';
+import styles from './post.module.scss';
+import hash from 'object-hash';
 
 interface Post {
-  uid?: string; 
+  uid?: string;
   first_publication_date: string | null;
   data: {
     title: string;
@@ -109,6 +106,7 @@ export default function Post(post: PostProps) {
           );
         })}
       </div>
+      <Comment />
     </div>
   );
 }
