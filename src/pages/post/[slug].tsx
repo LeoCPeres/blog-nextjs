@@ -4,8 +4,11 @@ import { ptBR } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 import { useRouter } from 'next/router';
-import Comment from '../../components/Comment/index';
+import { Loader } from '../../components/Loader';
 
+
+import Custom404 from '../404';
+import Comment from '../../components/Comment/index';
 import Prismic from '@prismicio/client';
 import styles from './post.module.scss';
 import hash from 'object-hash';
@@ -33,10 +36,11 @@ interface PostProps {
   post: Post;
 }
 
+
 export default function Post(post: PostProps) {
   const router = useRouter();
   if (router.isFallback) {
-    return <span>Carregando...</span>;
+    return <Loader />;
   }
 
   const wordsPerMinute = 200;

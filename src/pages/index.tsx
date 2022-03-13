@@ -7,7 +7,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 import Link from 'next/link';
 
 import commonStyles from '../styles/common.module.scss';
-import styles from './home.module.scss';
+import styles from './styles/home.module.scss';
 import { useState } from 'react';
 
 interface Post {
@@ -66,7 +66,11 @@ export default function Home({ postsPagination }: HomeProps) {
               <div>
                 <span>
                   <FiCalendar />
-                  {format( new Date(post.first_publication_date),'dd MMM yyyy',{locale: ptBR})}
+                  {format(
+                    new Date(post.first_publication_date),
+                    'dd MMM yyyy',
+                    { locale: ptBR }
+                  )}
                 </span>
                 <span>
                   <FiUser />
